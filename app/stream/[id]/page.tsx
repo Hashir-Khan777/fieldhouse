@@ -145,16 +145,11 @@ export default function StreamPage() {
         iceServers: [
           { urls: "stun:stun.l.google.com:19302" },
           {
-            urls: [
-              "turn:openrelay.metered.ca:80",
-              "turn:openrelay.metered.ca:443",
-              "turn:openrelay.metered.ca:443?transport=tcp",
-            ],
+            urls: "turn:openrelay.metered.ca:80",
             username: "openrelayproject",
             credential: "openrelayproject",
           },
         ],
-        iceTransportPolicy: "relay",
       });
       peersRef.current[id] = pc;
 
@@ -203,16 +198,11 @@ export default function StreamPage() {
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
         {
-          urls: [
-            "turn:openrelay.metered.ca:80",
-            "turn:openrelay.metered.ca:443",
-            "turn:openrelay.metered.ca:443?transport=tcp",
-          ],
+          urls: "turn:openrelay.metered.ca:80",
           username: "openrelayproject",
           credential: "openrelayproject",
         },
       ],
-      iceTransportPolicy: "relay",
     });
     peersRef.current["broadcaster"] = pc;
 
