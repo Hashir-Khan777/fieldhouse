@@ -41,17 +41,19 @@ import { useAuth } from "@/components/auth-provider";
 import { useToast } from "@/hooks/use-toast";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import { ImageActions } from "@/store/actions";
+import { ImageActions, StreamActions } from "@/store/actions";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const dispatch = useDispatch();
+  const dispatch: any = useDispatch();
 
   const { user } = useSelector((x: any) => x.AuthReducer);
   const { image } = useSelector((x: any) => x.ImageReducer);
+  const { stream, joinStream } = useSelector((x: any) => x.StreamReducer);
 
   const [streamThubnail, setStreamThumbnail] = useState("");
   const [streamTitle, setStreamTitle] = useState("");
+  const [streamId, setStreamId] = useState("");
   const [streamCategory, setStreamCategory] = useState("");
   const [streamDescription, setStreamDescription] = useState("");
   // const [isPublic, setIsPublic] = useState(true)
@@ -156,9 +158,8 @@ export default function DashboardPage() {
       toast.error("Please fill in all required fields");
       return;
     }
-    localStorage.setItem(
-      "broadcasting",
-      JSON.stringify({
+    dispatch(
+      StreamActions.addStream({
         streamer: user?._id,
         title: streamTitle,
         category: streamCategory,
@@ -166,8 +167,16 @@ export default function DashboardPage() {
         description: streamDescription,
       })
     );
-    router.push(`/stream/${user?._id}`);
   };
+
+  const handleJoinStream = (e: React.FormEvent) => {
+    e?.preventDefault();
+        if (!streamId) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    dispatch(StreamActions.updateStream({joinee: user?._id, id: streamId}));
+  }
 
   const handleScheduleStream = (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,6 +198,18 @@ export default function DashboardPage() {
       setStreamThumbnail(image?.secure_url);
     }
   }, [image]);
+
+  useEffect(() => {
+    if (stream?._id) {
+      router.push(`/stream/${user?._id}/${stream?._id}`);
+    }
+  }, [stream]);
+
+  useEffect(() => {
+    if (joinStream?._id) {
+      router.push(`/stream/${joinStream?.streamer?._id}/${joinStream?._id}`);
+    }
+  }, [joinStream]);
 
   if (!user || !user?.verified) {
     return (
@@ -388,6 +409,37 @@ export default function DashboardPage() {
         </TabsList>
 
         <TabsContent value="stream" className="mt-6 space-y-6">
+          <Card className="bg-card border-fhsb-green/20">
+            <CardHeader>
+              <CardTitle className="text-fhsb-cream">
+                Join a Stream
+              </CardTitle>
+              <CardDescription>Stream with your freinds</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleJoinStream} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="schedule-title">Stream Id</Label>
+                  <Input
+                    id="schedule-title"
+                    placeholder="Enter stream id"
+                    value={streamId}
+                    onChange={(e) => setStreamId(e.target.value)}
+                    required
+                    className="bg-muted/10 border-fhsb-green/30 focus-visible:ring-fhsb-green/50"
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  className="bg-fhsb-green text-black hover:bg-fhsb-green/90"
+                >
+                  Join Stream
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
           <Card className="bg-card border-fhsb-green/20">
             <CardHeader>
               <CardTitle className="text-fhsb-cream">Start Streaming</CardTitle>

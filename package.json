@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
+    "@ondato-public/idv-sdk": "^2.0.6",
     "@radix-ui/react-accordion": "latest",
     "@radix-ui/react-alert-dialog": "latest",
     "@radix-ui/react-aspect-ratio": "latest",
@@ -52,6 +53,8 @@
     "input-otp": "latest",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.454.0",
+    "mediasoup": "^3.18.0",
+    "mediasoup-client": "^3.15.2",
     "mongoose": "^8.16.3",
     "multer": "^2.0.2",
     "next": "15.2.4",

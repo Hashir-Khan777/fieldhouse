@@ -14,7 +14,7 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const dispatch: any = useDispatch();
-  const cookies = new Cookies()
+  const cookies = new Cookies();
 
   const { user } = useSelector((x: any) => x.AuthReducer);
 
@@ -66,6 +66,13 @@ export function Header() {
               }`}
             >
               Categories
+            </Link>
+            <Link
+              href="https://dentreasurebox.myshopify.com/"
+              target="_shop"
+              className={`text-sm font-medium transition-colors hover:text-primary text-muted-foreground`}
+            >
+              Tresure Box
             </Link>
             {user?.verified && (
               <Link
@@ -172,6 +179,13 @@ export function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Categories
+              </Link>
+              <Link
+                href="https://dentreasurebox.myshopify.com/"
+                target="_shop"
+                className={`text-sm font-medium transition-colors hover:text-primary text-muted-foreground`}
+              >
+                Tresure Box
               </Link>
               {user?.verified && (
                 <Link

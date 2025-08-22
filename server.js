@@ -30,6 +30,7 @@ io.on("connection", async (socket) => {
           email: { type: String, required: true, unique: true },
           password: { type: String, required: true },
           verified: { type: Boolean, default: false },
+          documentsverified: { type: Boolean, default: false },
         },
         { strict: false, timestamps: true }
       ),
@@ -46,6 +47,10 @@ io.on("connection", async (socket) => {
           category: { type: String, required: true },
           thumbnail: { type: String, default: false },
           description: { type: String, default: false },
+          joinees: {
+            type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+            default: [],
+          },
         },
         { strict: false, timestamps: true }
       ),
@@ -57,34 +62,25 @@ io.on("connection", async (socket) => {
     socket.emit("new-watchers", watchers);
   });
 
-  socket.on("broadcaster", async (stream) => {
+  socket.on("broadcaster", async (streamerId) => {
+    console.log("broadcaster stream", streamerId);
     const details = await Stream.findOne({
-      streamer: stream?.streamer,
+      streamer: streamerId,
     }).populate("streamer");
-    if (details) {
-      broadcasters.push({ ...details?._doc, socket: socket.id });
-      activeStreams.push({ ...details?._doc, socket: socket.id });
-      socket.join(stream?.streamer?._id);
-      io.to(socket.id).emit("broadcasting-details", details);
-      io.emit("active-streams", activeStreams);
-    } else {
-      await Stream.create(stream);
-      const details = await Stream.findOne({
-        streamer: stream?.streamer,
-      }).populate("streamer");
-      broadcasters.push({ ...details?._doc, socket: socket.id });
-      activeStreams.push({ ...details?._doc, socket: socket.id });
-      socket.join(stream?.streamer?._id);
-      io.to(socket.id).emit("broadcasting-details", details);
-      io.emit("active-streams", activeStreams);
-    }
+    console.log("broadcaster details", details);
+    broadcasters.push({ ...details?._doc, socket: socket.id });
+    activeStreams.push({ ...details?._doc, socket: socket.id });
+    socket.join(streamerId);
+    io.to(socket.id).emit("broadcasting-details", details);
+    io.emit("active-streams", activeStreams);
   });
 
   socket.on("watcher", async (streamId) => {
     const details = await Stream.findOne({
       streamer: streamId,
     }).populate("streamer");
-    const broadcaster = broadcasters.find((x) => x.streamer._id == streamId);
+    console.log("stream", details);
+    const broadcaster = broadcasters.find((x) => x.streamer?._id == streamId);
     console.log(broadcaster, "broadcaster");
     console.log(streamId, "streamId");
     if (watchers[streamId] && watchers[streamId]?.length >= 0) {

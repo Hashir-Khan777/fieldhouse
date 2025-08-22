@@ -28,7 +28,7 @@ export default function StreamCard({
 }: StreamCardProps) {
   return (
     <div className="group overflow-hidden rounded-lg border border-fhsb-green/20 bg-card transition-all duration-300 stream-card">
-      <Link href={`/stream/${id}`}>
+      <Link href={`/stream/${streamer?._id}/${id}`}>
         <div className="relative aspect-video overflow-hidden">
           <Image
             src={thumbnail || "/placeholder.svg"}

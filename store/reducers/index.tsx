@@ -4,9 +4,11 @@ import { combineReducers } from "@reduxjs/toolkit";
 import AuthReducer from "./auth.reducer";
 import ToastReducer from "./toast.reducer";
 import ImageReducer from "./image.reducer";
+import StreamReducer from "./stream.reducer";
 
 export default combineReducers({
   AuthReducer,
   ToastReducer,
-  ImageReducer
+  ImageReducer,
+  StreamReducer
 });

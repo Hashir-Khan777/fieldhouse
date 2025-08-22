@@ -184,11 +184,11 @@ export default function Home() {
       });
       socket.emit("client-ready");
       socket.on("new-streams", (updated: any) => {
-        console.log("new stream")
+        console.log("new stream");
         setStreams(updated);
       });
       socket.on("new-watchers", (updated: any) => {
-        console.log("new watcher")
+        console.log("new watcher");
         setWatchers(updated);
       });
     }
@@ -248,7 +248,11 @@ export default function Home() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {streams.map((stream: any) => (
-            <StreamCard key={stream.id} {...{...stream, id: stream.streamer._id}} viewerCount={watchers[stream.streamer._id]?.length} />
+            <StreamCard
+              key={stream.id}
+              {...{ ...stream, id: stream._id }}
+              viewerCount={watchers[stream.streamer._id]?.length}
+            />
           ))}
         </div>
       </section>
@@ -284,7 +288,7 @@ export default function Home() {
       </section> */}
 
       {/* CTA Banner */}
-      {!user?.verified ? (
+      {/* {!user?.verified ? (
         <section className="rounded-xl border border-fhsb-green/30 overflow-hidden">
           <div className="bg-gradient-to-r from-black to-fhsb-darkgreen p-6 md:p-8">
             <div className="max-w-3xl mx-auto text-center space-y-4">
@@ -313,7 +317,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-      ) : null}
+      ) : null} */}
     </div>
   );
 }

@@ -37,7 +37,7 @@ export default function EmailVerificationPage() {
 
   useEffect(() => {
     if (user?.verified) {
-      router.replace("/");
+      router.replace("/documents");
     }
   }, [user]);
 
@@ -79,15 +79,6 @@ export default function EmailVerificationPage() {
             {loading ? "Verifieng email..." : "Verify Email"}
           </Button>
         </form>
-
-        <div className="text-center text-sm">
-          <p className="text-muted-foreground">
-            Already have an account?{" "}
-            <Link href="/login" className="text-fhsb-green hover:underline">
-              Sign in
-            </Link>
-          </p>
-        </div>
       </div>
     </div>
   );
