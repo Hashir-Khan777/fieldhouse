@@ -14,15 +14,18 @@ import StreamCard from "@/components/stream-card";
 import { useSocket } from "@/hooks/use-socket";
 import { useSelector, useDispatch } from "react-redux";
 import { StreamActions } from "@/store/actions";
+import * as mediasoupClient from "mediasoup-client";
 
 let interval: any;
+let device: any;
 export default function StreamPage() {
   const { id, streamid }: any = useParams();
   const [isFollowing, setIsFollowing] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [viewerCount, setViewerCount] = useState(0);
   const [watchers, setWatchers] = useState<any>({});
-  const [streams, setStreams] = useState<any>({});
+  const [streams, setStreams] = useState<any>([]);
+  const [currentStream, setCurrentStream] = useState<any>(0);
   const [time, setTime] = useState<any>();
   const { socket, connected } = useSocket();
 
@@ -31,31 +34,6 @@ export default function StreamPage() {
   const { user } = useSelector((x: any) => x.AuthReducer);
   const { stream } = useSelector((x: any) => x.StreamReducer);
 
-  // const localVideo: any = useRef(null);
-  // const remoteVideo: any = useRef(null);
-  const peersRef = useRef<Record<string, RTCPeerConnection>>({});
-  // const localStream = useRef<MediaStream | null>(null);
-  // const peerConnection = new RTCPeerConnection();
-
-  // Mock stream data
-  // const stream = {
-  //   id: id as string,
-  //   title: "Championship Finals - Team Alpha vs Team Omega",
-  //   description:
-  //     "Watch the exciting championship finals between Team Alpha and Team Omega. This is the culmination of months of competition, and both teams have shown incredible skill throughout the tournament. Don't miss this epic showdown!",
-  //   thumbnail: "/placeholder.svg?height=720&width=1280",
-  //   streamer: {
-  //     username: "OfficialFHSB",
-  //     displayName: "Official FHSB",
-  //     avatar: "/placeholder.svg?height=200&width=200",
-  //     followers: 125000,
-  //   },
-  //   category: "Basketball",
-  //   isLive: true,
-  //   startedAt: new Date(Date.now() - 1000 * 60 * 45), // Started 45 minutes ago
-  // };
-
-  // Mock recommended streams
   const recommendedStreams = [
     {
       id: "rec-1",
@@ -121,158 +99,134 @@ export default function StreamPage() {
     }
   };
 
+  async function initDevice(socket: any) {
+    if (device && device.loaded) return;
+
+    device = new mediasoupClient.Device();
+
+    const rtpCapabilities = await new Promise((resolve) => {
+      socket.emit("getRtpCapabilities", resolve);
+    });
+
+    await device.load({ routerRtpCapabilities: rtpCapabilities });
+    console.log("Device loaded ✅");
+  }
+
   const startStreaming = async () => {
-    console.log("🎥 I am a streamer");
+    await initDevice(socket);
 
-    socket?.emit("broadcaster", id);
-
-    const webstream = await navigator.mediaDevices.getUserMedia({
+    const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true,
     });
 
-    // if (localVideo.current) {
-    //   localVideo.current.srcObject = webstream;
-    // }
-
-    setStreams((prev: any) => ({ ...prev, [webstream.id]: webstream }));
-    // localStream.current = webstream;
-
-    socket?.on("watcher", async (id: string) => {
-      console.log("👀 Watcher joined:", id);
-
-      const pc = new RTCPeerConnection({
-        iceServers: [
-          { urls: "stun:stun.l.google.com:19302" },
-          {
-            urls: "turn:openrelay.metered.ca:80",
-            username: "openrelayproject",
-            credential: "openrelayproject",
-          },
-        ],
-      });
-      peersRef.current[id] = pc;
-
-      webstream.getTracks().forEach((track) => {
-        pc.addTrack(track, webstream);
-      });
-
-      pc.onicecandidate = (event) => {
-        if (event.candidate) {
-          socket.emit("candidate", id, event.candidate);
-        }
-      };
-
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-      socket.emit("offer", id, offer);
+    const sendTransportParams = await new Promise((resolve) => {
+      socket.emit("createTransport", streamid, resolve);
     });
 
-    socket?.on(
-      "answer",
-      async (id: string, description: RTCSessionDescriptionInit) => {
-        console.log("📩 Got answer from", id);
-        await peersRef.current[id].setRemoteDescription(description);
+    const sendTransport = device.createSendTransport(sendTransportParams);
+
+    sendTransport.on(
+      "connect",
+      ({ dtlsParameters }: any, callback: any, errback: any) => {
+        socket.emit(
+          "connectTransport",
+          { transportId: sendTransport.id, dtlsParameters },
+          streamid,
+          callback
+        );
       }
     );
 
-    socket?.on("candidate", (id: string, candidate: RTCIceCandidate) => {
-      console.log("🧊 ICE Candidate from", id);
-      peersRef.current[id].addIceCandidate(new RTCIceCandidate(candidate));
+    sendTransport.on(
+      "produce",
+      ({ kind, rtpParameters }: any, callback: any, errback: any) => {
+        socket.emit(
+          "produce",
+          { transportId: sendTransport.id, kind, rtpParameters },
+          streamid,
+          ({ id }: any) => callback({ id })
+        );
+      }
+    );
+
+    stream.getTracks().forEach(async (track) => {
+      await sendTransport.produce({ track });
     });
 
-    socket?.on("disconnectPeer", (id: string) => {
-      console.log("❌ Peer disconnected", id);
-      if (peersRef.current[id]) {
-        peersRef.current[id].close();
-        delete peersRef.current[id];
-      }
-    });
+    setStreams((prev: any) => [...prev, stream]);
   };
 
-  const viewerStream = async () => {
-    console.log("📺 I am a viewer");
+  const viewerStream = async (producerId: any) => {
+    console.log("Viewing stream with producerId:", producerId);
+    await initDevice(socket);
 
-    socket.emit("watcher", id);
-    const pc = new RTCPeerConnection({
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
+    const recvTransportParams = await new Promise((resolve) => {
+      socket.emit("createTransport", streamid, resolve);
+    });
+
+    const recvTransport = device.createRecvTransport(recvTransportParams);
+
+    recvTransport.on(
+      "connect",
+      ({ dtlsParameters }: any, callback: any, errback: any) => {
+        socket.emit(
+          "connectTransport",
+          { transportId: recvTransport.id, dtlsParameters },
+          streamid,
+          callback
+        );
+      }
+    );
+
+    const consumerParams = await new Promise((resolve) => {
+      socket.emit(
+        "consume",
         {
-          urls: "turn:openrelay.metered.ca:80",
-          username: "openrelayproject",
-          credential: "openrelayproject",
+          transportId: recvTransport.id,
+          producerId,
+          rtpCapabilities: device.rtpCapabilities,
         },
-      ],
-    });
-    peersRef.current["broadcaster"] = pc;
-
-    pc.ontrack = (event) => {
-      console.log("📡 Track received:", event.streams);
-      setStreams((prev: any) => ({
-        ...prev,
-        [event.streams[0].id]: event.streams[0],
-      }));
-      // if (remoteVideo.current) {
-      //   remoteVideo.current.srcObject = event.streams[0];
-      // }
-    };
-
-    pc.oniceconnectionstatechange = () => {
-      console.log("📶 ICE Connection State:", pc.iceConnectionState);
-    };
-
-    socket?.on(
-      "offer",
-      async (id: string, description: RTCSessionDescriptionInit) => {
-        console.log("📦 Got offer from", id);
-        await pc.setRemoteDescription(new RTCSessionDescription(description));
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        socket.emit("answer", id, answer);
-      }
-    );
-
-    socket?.on("candidate", (id: string, candidate: RTCIceCandidate) => {
-      console.log("🌍 ICE Candidate from", id);
-      pc.addIceCandidate(new RTCIceCandidate(candidate));
-      pc.onicecandidate = (event) => {
-        if (event.candidate) {
-          socket.emit("candidate", id, event.candidate);
-        }
-      };
+        streamid,
+        resolve
+      );
     });
 
-    socket?.on("disconnectPeer", (id: string) => {
-      console.log("🔌 Disconnected broadcaster");
-      if (peersRef.current["broadcaster"]) {
-        peersRef.current["broadcaster"].close();
-        delete peersRef.current["broadcaster"];
-      }
-    });
+    const consumer = await recvTransport.consume(consumerParams);
+
+    console.log("consumer stream: ", consumer);
+
+    const stream = new MediaStream();
+    if (consumer.track && consumer.track.readyState === "live") {
+      stream.addTrack(consumer.track);
+      setStreams((prev: any) => [...prev, stream]);
+    }
   };
+
+  useEffect(() => {
+    if (connected) {
+      socket.on("newProducer", ({ producerId }: any) => {
+        console.log("New producer with producerId:", producerId);
+        viewerStream(producerId);
+      });
+    }
+  }, [connected]);
 
   useEffect(() => {
     if (connected && user?.verified && id === user?._id) {
       startStreaming();
     } else if (connected) {
-      console.log("remove watcher");
-      socket.emit("remove-watcher", id);
-      viewerStream();
+      viewerStream(null);
     }
   }, [connected, user]);
 
   useEffect(() => {
-    if (connected && socket) {
-      socket.on("active-watchers", (updated: any) => {
-        setWatchers(updated);
-      });
-      socket.emit("client-ready");
-      socket.on("new-watchers", (updated: any) => {
-        console.log("new watcher");
-        setWatchers(updated);
-      });
+    if (stream?._id && user?._id && user?.verified) {
+      if (stream.joinees.includes(user?._id)) {
+        startStreaming();
+      }
     }
-  }, [connected]);
+  }, [stream, user]);
 
   useEffect(() => {
     if (stream?.createdAt) {
@@ -293,29 +247,50 @@ export default function StreamPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-6">
         <div className="space-y-4">
           {/* Video Player */}
-          <div className="video-player-container rounded-lg border border-fhsb-green/20 overflow-hidden">
-            <div className="w-full h-full flex items-center justify-center bg-black">
-              {Object.keys(streams)?.length <= 0 ? (
-                <Image
-                  src={stream?.thumbnail || "/placeholder.svg"}
-                  alt={stream?.title}
-                  width={1280}
-                  height={720}
-                  className="w-full h-full object-contain"
-                />
-              ) : (
+          {user?.verified && id === user?._id ? (
+            <div className="mb-3">Join ID: {streamid}</div>
+          ) : null}
+          <div>
+            <div className="video-player-container rounded-lg border border-fhsb-green/20 overflow-hidden">
+              <div className="w-full h-full flex items-center justify-center bg-black">
+                {streams.length <= 0 ? (
+                  <Image
+                    src={stream?.thumbnail || "/placeholder.svg"}
+                    alt={stream?.title}
+                    width={1280}
+                    height={720}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <video
+                    ref={(el: any) => {
+                      if (el) el.srcObject = streams[currentStream];
+                    }}
+                    autoPlay
+                    playsInline
+                    controls
+                    width={1280}
+                    height={720}
+                    className="w-full h-full object-contain"
+                  />
+                )}
+              </div>
+            </div>
+            <div className="flex gap-3 justify-between items-center mt-4">
+              {streams.map((stream: any, index: any) => (
                 <video
-                  ref={(el) => {
-                    if (el) el.srcObject = streams[Object.keys(streams)[0]];
+                  key={index}
+                  ref={(el: any) => {
+                    if (el) el.srcObject = stream;
                   }}
                   autoPlay
-                  controls
                   playsInline
-                  width={1280}
-                  height={720}
-                  className="w-full h-full object-contain"
+                  controls
+                  width={150}
+                  height={150}
+                  className="object-contain"
                 />
-              )}
+              ))}
             </div>
           </div>
 

@@ -1,11 +1,8 @@
 const http = require("http");
 const { Server } = require("socket.io");
 const mongoose = require("mongoose");
+const mediasoup = require("mediasoup");
 require("dotenv").config();
-
-const activeStreams = [];
-const broadcasters = [];
-const watchers = {};
 
 const server = http.createServer((req, res) => {
   res.writeHead(200);
@@ -18,7 +15,59 @@ const io = new Server(server, {
   },
 });
 
-io.on("connection", async (socket) => {
+let worker;
+let router;
+const streams = [];
+
+const createWorker = async () => {
+  worker = await mediasoup.createWorker();
+  console.log("Mediasoup worker started ✅");
+
+  worker.on("died", () => {
+    console.error("Mediasoup worker died, exiting...");
+    process.exit(1);
+  });
+
+  router = await worker.createRouter({
+    mediaCodecs: [
+      {
+        kind: "audio",
+        mimeType: "audio/opus",
+        clockRate: 48000,
+        channels: 2,
+      },
+      {
+        kind: "video",
+        mimeType: "video/VP8",
+        clockRate: 90000,
+        parameters: { "x-google-start-bitrate": 1000 },
+      },
+    ],
+  });
+
+  console.log("Router created ✅");
+};
+
+const createWebRtcTransport = async () => {
+  const transport = await router.createWebRtcTransport({
+    listenIps: [{ ip: "0.0.0.0", announcedIp: "fieldhouse.vercel.app" }],
+    enableUdp: true,
+    enableTcp: true,
+    preferUdp: true,
+  });
+
+  return {
+    transport,
+    params: {
+      id: transport.id,
+      iceParameters: transport.iceParameters,
+      iceCandidates: transport.iceCandidates,
+      dtlsParameters: transport.dtlsParameters,
+    },
+  };
+};
+
+const connectDB = async () => {
   await mongoose.connect(process.env.MONGODB_URI);
   const User =
     mongoose.models.User ||
@@ -57,77 +106,126 @@ io.on("connection", async (socket) => {
       "streams"
     );
   console.log("mongo db connected");
-  socket.on("client-ready", () => {
-    socket.emit("new-streams", activeStreams);
-    socket.emit("new-watchers", watchers);
+};
+
+const createStream = (streamId, socketId) => {
+  const newStream = {
+    id: streamId,
+    transports: [],
+    producers: [],
+  };
+  streams.push(newStream);
+  return newStream;
+};
+
+createWorker();
+connectDB();
+
+io.on("connection", async (socket) => {
+  console.log("✅ Client connected:", socket.id);
+
+  socket.on("getRtpCapabilities", (callback) => {
+    callback(router.rtpCapabilities);
   });
 
-  socket.on("broadcaster", async (streamerId) => {
-    console.log("broadcaster stream", streamerId);
-    const details = await Stream.findOne({
-      streamer: streamerId,
-    }).populate("streamer");
-    console.log("broadcaster details", details);
-    broadcasters.push({ ...details?._doc, socket: socket.id });
-    activeStreams.push({ ...details?._doc, socket: socket.id });
-    socket.join(streamerId);
-    io.to(socket.id).emit("broadcasting-details", details);
-    io.emit("active-streams", activeStreams);
-  });
-
-  socket.on("watcher", async (streamId) => {
-    const details = await Stream.findOne({
-      streamer: streamId,
-    }).populate("streamer");
-    console.log("stream", details);
-    const broadcaster = broadcasters.find((x) => x.streamer?._id == streamId);
-    console.log(broadcaster, "broadcaster");
-    console.log(streamId, "streamId");
-    if (watchers[streamId] && watchers[streamId]?.length >= 0) {
-      watchers[streamId] = [...watchers[streamId], socket.id];
-    } else {
-      watchers[streamId] = [socket.id];
+  socket.on("createTransport", async (streamId, callback) => {
+    socket.join(streamId);
+    const { transport, params } = await createWebRtcTransport();
+    const stream = streams.find((x) => x.id === streamId);
+    if (!stream) {
+      createStream(streamId);
     }
-    if (broadcaster?._id) {
-      console.log(broadcaster?._id, "broadcasterId");
-      console.log(broadcaster?.socket, "broadcaster Socket");
-      socket.streamId = streamId;
-      socket.join(streamId);
-      io.to(broadcaster?.socket).emit("watcher", socket.id);
-      io.to(socket.id).emit("broadcasting-details", details);
+    streams.find((x) => x.id === streamId).transports.push(transport);
+    callback(params);
+  });
+
+  socket.on(
+    "connectTransport",
+    async ({ transportId, dtlsParameters }, streamId, callback) => {
+      let transport = streams
+        .find((x) => x.id === streamId)
+        ?.transports?.find((t) => t.id === transportId);
+      await transport.connect({ dtlsParameters });
+      callback();
     }
-    console.log(watchers, "watchers in add");
-    io.emit("active-watchers", watchers);
-  });
+  );
 
-  socket.on("offer", (id, message, streamId) => {
-    io.to(id).emit("offer", socket.id, message, streamId);
-  });
+  socket.on(
+    "produce",
+    async ({ transportId, kind, rtpParameters }, streamId, callback) => {
+      const transport = streams
+        .find((x) => x.id === streamId)
+        ?.transports?.find((t) => t.id === transportId);
+      const producer = await transport.produce({ kind, rtpParameters });
+      streams.find((x) => x.id === streamId).producers.push(producer);
+      console.log("🎥 Producer created:", producer.id);
 
-  socket.on("answer", (id, message, streamId) => {
-    io.to(id).emit("answer", socket.id, message, streamId);
-  });
+      socket
+        .to(streamId)
+        .emit("newProducer", { producerId: producer.id, streamId });
 
-  socket.on("candidate", (targetId, candidate) => {
-    console.log("🔁 Relaying ICE candidate to", targetId);
-    io.to(targetId).emit("candidate", socket.id, candidate);
-  });
+      // producer.on("transportclose", () => {
+      //   producer.close();
+      //   producer = null;
+      // });
+
+      callback({ id: producer.id });
+    }
+  );
+
+  socket.on(
+    "consume",
+    async (
+      { producerId, transportId, rtpCapabilities },
+      streamId,
+      callback
+    ) => {
+      try {
+        const stream = streams.find((x) => x.id === streamId);
+        const transport = stream.transports.find((t) => t.id === transportId);
+
+        if (producerId) {
+          if (!router.canConsume({ producerId: producerId, rtpCapabilities })) {
+            throw new Error("Cannot consume");
+          }
+
+          const consumer = await transport.consume({
+            producerId,
+            rtpCapabilities,
+            paused: false,
+          });
+
+          consumer.on("transportclose", () => consumer.close());
+          consumer.on("producerclose", () => consumer.close());
+
+          callback({
+            id: consumer.id,
+            producerId,
+            kind: consumer.kind,
+            rtpParameters: consumer.rtpParameters,
+          });
+        } else {
+          const producers = streams.find((x) => x.id === streamId)?.producers;
+          producers.forEach((producer) => {
+            if (
+              router.canConsume({ producerId: producer.id, rtpCapabilities })
+            ) {
+              socket.emit("newProducer", {
+                producerId: producer.id,
+                streamId,
+              });
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Consume error:", err);
+        callback({ error: err.message });
+      }
+    }
+  );
 
   socket.on("disconnect", () => {
-    const streamId = socket.streamId;
-    const index = broadcasters.findIndex((b) => b.socket === socket.id);
-    if (streamId && watchers[streamId]) {
-      console.log(streamId, watchers[streamId], "dissconnect watcher");
-      watchers[streamId] = watchers[streamId].filter((id) => id !== socket.id);
-      io.emit("active-watchers", watchers);
-    }
-    if (index !== -1) {
-      console.log("🛑 Broadcaster disconnected:", socket.id);
-      broadcasters.splice(index, 1);
-      activeStreams.splice(index, 1);
-      io.emit("active-streams", activeStreams);
-    }
-    console.log("client dissconected");
+    console.log("❌ Client disconnected:", socket.id);
   });
 });
 

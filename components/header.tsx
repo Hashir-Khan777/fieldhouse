@@ -48,22 +48,29 @@ export function Header() {
 
           <nav className="hidden md:flex items-center gap-6 ml-6">
             <Link
-              href="/browse"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                pathname === "/browse"
+              href="/admin"
+              className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/admin"
                   ? "text-primary"
                   : "text-muted-foreground"
-              }`}
+                }`}
+            >
+              Admin
+            </Link>
+            <Link
+              href="/browse"
+              className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/browse"
+                  ? "text-primary"
+                  : "text-muted-foreground"
+                }`}
             >
               Browse
             </Link>
             <Link
               href="/categories"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                pathname === "/categories"
+              className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/categories"
                   ? "text-primary"
                   : "text-muted-foreground"
-              }`}
+                }`}
             >
               Categories
             </Link>
@@ -77,11 +84,10 @@ export function Header() {
             {user?.verified && (
               <Link
                 href="/following"
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  pathname === "/following"
+                className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/following"
                     ? "text-primary"
                     : "text-muted-foreground"
-                }`}
+                  }`}
               >
                 Following
               </Link>
@@ -159,23 +165,31 @@ export function Header() {
 
             <nav className="flex flex-col space-y-3">
               <Link
-                href="/browse"
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  pathname === "/browse"
+                href="/admin"
+                className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/admin"
                     ? "text-primary"
                     : "text-muted-foreground"
-                }`}
+                  }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Admin
+              </Link>
+              <Link
+                href="/browse"
+                className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/browse"
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                  }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Browse
               </Link>
               <Link
                 href="/categories"
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  pathname === "/categories"
+                className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/categories"
                     ? "text-primary"
                     : "text-muted-foreground"
-                }`}
+                  }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Categories
@@ -190,11 +204,10 @@ export function Header() {
               {user?.verified && (
                 <Link
                   href="/following"
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    pathname === "/following"
+                  className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/following"
                       ? "text-primary"
                       : "text-muted-foreground"
-                  }`}
+                    }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Following
