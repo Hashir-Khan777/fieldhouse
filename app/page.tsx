@@ -175,27 +175,13 @@ export default function Home() {
   // ]
 
   useEffect(() => {
-    if (connected && socket) {
-      socket.on("active-streams", (updated: any) => {
-        setStreams(updated);
-      });
-      socket.on("active-watchers", (updated: any) => {
-        setWatchers(updated);
-      });
+    if (connected) {
       socket.emit("client-ready");
-      socket.on("new-streams", (updated: any) => {
-        console.log("new stream");
+      socket.on("streams", (updated: any) => {
         setStreams(updated);
-      });
-      socket.on("new-watchers", (updated: any) => {
-        console.log("new watcher");
-        setWatchers(updated);
       });
     }
   }, [connected]);
-
-  console.log(streams, "streams");
-  console.log(watchers, "watchers");
 
   return (
     <div className="container px-4 py-6 md:px-6 space-y-8">

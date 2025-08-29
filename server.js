@@ -18,6 +18,9 @@ const io = new Server(server, {
 let worker;
 let router;
 const streams = [];
+const activeStreams = [];
+let userModel;
+let streamModel;
 
 const createWorker = async () => {
   worker = await mediasoup.createWorker();
@@ -50,7 +53,7 @@ const createWorker = async () => {
 
 const createWebRtcTransport = async () => {
   const transport = await router.createWebRtcTransport({
-    listenIps: [{ ip: "0.0.0.0", announcedIp: "fieldhouse.vercel.app" }],
+    listenIps: [{ ip: "0.0.0.0", announcedIp: process.env.ANNOUNCED_DOMAIN }],
     enableUdp: true,
     enableTcp: true,
     preferUdp: true,
@@ -69,7 +72,7 @@ const createWebRtcTransport = async () => {
 
 const connectDB = async () => {
   await mongoose.connect(process.env.MONGODB_URI);
-  const User =
+  userModel =
     mongoose.models.User ||
     mongoose.model(
       "User",
@@ -85,7 +88,7 @@ const connectDB = async () => {
       ),
       "users"
     );
-  const Stream =
+  streamModel =
     mongoose.models.Stream ||
     mongoose.model(
       "Stream",
@@ -108,7 +111,7 @@ const connectDB = async () => {
   console.log("mongo db connected");
 };
 
-const createStream = (streamId, socketId) => {
+const createStream = (streamId) => {
   const newStream = {
     id: streamId,
     transports: [],
@@ -124,6 +127,10 @@ connectDB();
 io.on("connection", async (socket) => {
   console.log("✅ Client connected:", socket.id);
 
+  socket.on("client-ready", () => {
+    io.emit("streams", activeStreams);
+  });
+
   socket.on("getRtpCapabilities", (callback) => {
     callback(router.rtpCapabilities);
   });
@@ -136,7 +143,15 @@ io.on("connection", async (socket) => {
       createStream(streamId);
     }
     streams.find((x) => x.id === streamId).transports.push(transport);
+    const streamExists = activeStreams.find((x) => x.id === streamId);
+    if (!streamExists) {
+      const streamById = await streamModel
+        .findById(streamId)
+        .populate("streamer");
+      activeStreams.push(streamById);
+    }
     callback(params);
+    io.emit("streams", activeStreams);
   });
 
   socket.on(
