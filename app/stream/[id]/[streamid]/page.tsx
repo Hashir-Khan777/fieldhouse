@@ -154,7 +154,7 @@ export default function StreamPage() {
       await sendTransport.produce({ track });
     });
 
-    setStreams((prev: any) => [...prev, stream]);
+    setStreams((prev: any) => [...prev, { hostId: user?._id, stream }]);
   };
 
   const viewerStream = async (producerId: any) => {
@@ -194,12 +194,18 @@ export default function StreamPage() {
 
     const consumer = await recvTransport.consume(consumerParams);
 
-    console.log("consumer stream: ", consumer);
-
-    const stream = new MediaStream();
     if (consumer.track && consumer.track.readyState === "live") {
-      stream.addTrack(consumer.track);
-      setStreams((prev: any) => [...prev, stream]);
+      setStreams((prev: any) => {
+        const existing = prev.find((s: any) => s.hostId === user?._id);
+
+        if (existing) {
+          existing.stream.addTrack(consumer.track);
+          return [...prev];
+        } else {
+          const newStream = new MediaStream([consumer.track]);
+          return [...prev, { hostId: user?._id, stream: newStream }];
+        }
+      });
     }
   };
 
@@ -264,7 +270,7 @@ export default function StreamPage() {
                 ) : (
                   <video
                     ref={(el: any) => {
-                      if (el) el.srcObject = streams[currentStream];
+                      if (el) el.srcObject = streams[currentStream]?.stream;
                     }}
                     autoPlay
                     playsInline
@@ -277,20 +283,22 @@ export default function StreamPage() {
               </div>
             </div>
             <div className="flex gap-3 justify-between items-center mt-4">
-              {streams.map((stream: any, index: any) => (
-                <video
-                  key={index}
-                  ref={(el: any) => {
-                    if (el) el.srcObject = stream;
-                  }}
-                  autoPlay
-                  playsInline
-                  controls
-                  width={150}
-                  height={150}
-                  className="object-contain"
-                />
-              ))}
+              {streams
+                .filter((_: any, index: any) => index !== currentStream)
+                .map((stream: any, index: any) => (
+                  <video
+                    key={index}
+                    ref={(el: any) => {
+                      if (el) el.srcObject = stream?.stream;
+                    }}
+                    autoPlay
+                    playsInline
+                    controls
+                    width={150}
+                    height={150}
+                    className="object-contain"
+                  />
+                ))}
             </div>
           </div>
 
