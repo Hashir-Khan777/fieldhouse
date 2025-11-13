@@ -52,7 +52,11 @@ export default function DashboardPage() {
   const { stream, joinStream } = useSelector((x: any) => x.StreamReducer);
 
   const [streamThubnail, setStreamThumbnail] = useState("");
+  const [banner, setBanner] = useState("");
+  const [profilePic, setProfilePic] = useState("");
+  const [imageType, setImageType] = useState("");
   const [streamTitle, setStreamTitle] = useState("");
+  const [userProfile, setUserProfile] = useState<any>({});
   const [streamId, setStreamId] = useState("");
   const [streamCategory, setStreamCategory] = useState("");
   const [streamDescription, setStreamDescription] = useState("");
@@ -141,12 +145,13 @@ export default function DashboardPage() {
     },
   ];
 
-  const handleUpload = async (e: any) => {
+  const handleUpload: any = async (e: any, folder: any, imageType: any) => {
+    setImageType(imageType);
     const reader = new FileReader();
     reader.readAsDataURL(e.target.files[0]);
     reader.onload = () => {
       dispatch(
-        ImageActions.uploadImage({ image: reader.result, folder: "thumbnails" })
+        ImageActions.uploadImage({ image: reader.result, folder: folder })
       );
     };
   };
@@ -171,12 +176,12 @@ export default function DashboardPage() {
 
   const handleJoinStream = (e: React.FormEvent) => {
     e?.preventDefault();
-        if (!streamId) {
+    if (!streamId) {
       toast.error("Please fill in all required fields");
       return;
     }
-    dispatch(StreamActions.updateStream({joinee: user?._id, id: streamId}));
-  }
+    dispatch(StreamActions.updateStream({ joinee: user?._id, id: streamId }));
+  };
 
   const handleScheduleStream = (e: React.FormEvent) => {
     e.preventDefault();
@@ -195,7 +200,15 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (image) {
-      setStreamThumbnail(image?.secure_url);
+      if (imageType === "banner") {
+        setBanner(image?.secure_url);
+      }
+      if (imageType === "thumbnail") {
+        setStreamThumbnail(image?.secure_url);
+      }
+      if (imageType === "profile") {
+        setProfilePic(image?.secure_url);
+      }
     }
   }, [image]);
 
@@ -204,6 +217,14 @@ export default function DashboardPage() {
       router.push(`/stream/${user?._id}/${stream?._id}`);
     }
   }, [stream]);
+
+  useEffect(() => {
+    if (user) {
+      setBanner(user?.banner);
+      setProfilePic(user?.profilePic);
+      setUserProfile({...user})
+    }
+  }, [user]);
 
   useEffect(() => {
     if (joinStream?._id) {
@@ -411,9 +432,7 @@ export default function DashboardPage() {
         <TabsContent value="stream" className="mt-6 space-y-6">
           <Card className="bg-card border-fhsb-green/20">
             <CardHeader>
-              <CardTitle className="text-fhsb-cream">
-                Join a Stream
-              </CardTitle>
+              <CardTitle className="text-fhsb-cream">Join a Stream</CardTitle>
               <CardDescription>Stream with your freinds</CardDescription>
             </CardHeader>
             <CardContent>
@@ -467,7 +486,9 @@ export default function DashboardPage() {
                       />
                       <input
                         type="file"
-                        onChange={handleUpload}
+                        onChange={(e) =>
+                          handleUpload(e, "thumbnails", "thumbnail")
+                        }
                         className="absolute cursor-pointer"
                         style={{ width: "100%", height: "100%", opacity: 0 }}
                       />
@@ -865,16 +886,55 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <form className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-4 items-center">
-                  <Avatar className="h-20 w-20 border-2 border-fhsb-green/30">
-                    <AvatarImage
-                      src={user.avatar || "/placeholder.svg"}
-                      alt={user.username}
+                <div className="relative aspect-video overflow-hidden">
+                  {banner ? (
+                    <Image
+                      src={banner}
+                      alt={"title"}
+                      fill
+                      className="object-cover transition-transform group-hover:scale-105"
                     />
-                    <AvatarFallback className="bg-muted text-fhsb-cream text-xl">
-                      {user.username.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                  ) : (
+                    <>
+                      <Image
+                        src={"/placeholder.svg"}
+                        alt={"title"}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105 cursor-pointer"
+                      />
+                      <input
+                        type="file"
+                        onChange={(e) => handleUpload(e, "banner", "banners")}
+                        className="absolute cursor-pointer"
+                        style={{ width: "100%", height: "100%", opacity: 0 }}
+                      />
+                    </>
+                  )}
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4 items-center">
+                  {profilePic ? (
+                    <Avatar className="h-20 w-20 border-2 border-fhsb-green/30">
+                      <AvatarImage src={profilePic} alt={user.username} />
+                      <AvatarFallback className="bg-muted text-fhsb-cream text-xl">
+                        {user.username.substring(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <div className="relative">
+                      <Avatar className="h-20 w-20 border-2 border-fhsb-green/30">
+                        <AvatarImage src={profilePic} alt={user.username} />
+                        <AvatarFallback className="bg-muted text-fhsb-cream text-xl">
+                          {user.username.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <input
+                        type="file"
+                        onChange={(e) => handleUpload(e, "profilePics", "profile")}
+                        className="absolute cursor-pointer"
+                        style={{ width: "100%", height: "100%", opacity: 0, top: 0 }}
+                      />
+                    </div>
+                  )}
                   <div className="flex-1">
                     <p className="text-sm text-muted-foreground mb-2">
                       Upload a new profile picture
@@ -900,7 +960,8 @@ export default function DashboardPage() {
                   <Label htmlFor="display-name">Display Name</Label>
                   <Input
                     id="display-name"
-                    defaultValue={user.username}
+                    onChange={(e) => setUserProfile({ ...userProfile, username: e.target.value })}
+                    defaultValue={userProfile.username}
                     className="bg-muted/10 border-fhsb-green/30 focus-visible:ring-fhsb-green/50"
                   />
                 </div>
@@ -910,7 +971,8 @@ export default function DashboardPage() {
                   <Input
                     id="email"
                     type="email"
-                    defaultValue={user.email}
+                    onChange={(e) => setUserProfile({ ...userProfile, email: e.target.value })}
+                    defaultValue={userProfile.email}
                     className="bg-muted/10 border-fhsb-green/30 focus-visible:ring-fhsb-green/50"
                   />
                 </div>
@@ -919,6 +981,8 @@ export default function DashboardPage() {
                   <Label htmlFor="bio">Bio</Label>
                   <Textarea
                     id="bio"
+                    onChange={(e) => setUserProfile({ ...userProfile, bio: e.target.value })}
+                    defaultValue={userProfile.bio}
                     placeholder="Tell viewers about yourself"
                     className="bg-muted/10 border-fhsb-green/30 focus-visible:ring-fhsb-green/50"
                   />
@@ -934,7 +998,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-fhsb-green/20">
+          {/* <Card className="bg-card border-fhsb-green/20">
             <CardHeader>
               <CardTitle className="text-fhsb-cream">Stream Settings</CardTitle>
               <CardDescription>
@@ -1057,7 +1121,7 @@ export default function DashboardPage() {
                 </Button>
               </form>
             </CardContent>
-          </Card>
+          </Card> */}
 
           <Card className="bg-card border-fhsb-green/20">
             <CardHeader>
@@ -1109,7 +1173,7 @@ export default function DashboardPage() {
                   </Button>
                 </div>
 
-                <div className="pt-4 border-t border-fhsb-green/20">
+                {/* <div className="pt-4 border-t border-fhsb-green/20">
                   <h3 className="text-sm font-medium text-fhsb-cream mb-4">
                     Two-Factor Authentication
                   </h3>
@@ -1130,7 +1194,7 @@ export default function DashboardPage() {
                       Enable
                     </Button>
                   </div>
-                </div>
+                </div> */}
               </form>
             </CardContent>
           </Card>

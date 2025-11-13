@@ -1,7 +1,9 @@
 import { isAuth } from "../../../utils/helpers/jwt";
+import { connectDB } from "../../../utils/db";
 
 export async function GET(req: any) {
   try {
+    await connectDB();
     const user: any = await isAuth(req);
     if (user && user.verified) {
       return new Response(JSON.stringify(user));

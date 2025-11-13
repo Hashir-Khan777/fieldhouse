@@ -5,10 +5,12 @@ import AuthReducer from "./auth.reducer";
 import ToastReducer from "./toast.reducer";
 import ImageReducer from "./image.reducer";
 import StreamReducer from "./stream.reducer";
+import DocumentReducer from "./document.reducer";
 
 export default combineReducers({
   AuthReducer,
   ToastReducer,
   ImageReducer,
-  StreamReducer
+  StreamReducer,
+  DocumentReducer
 });
