@@ -41,7 +41,7 @@ import { useAuth } from "@/components/auth-provider";
 import { useToast } from "@/hooks/use-toast";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import { ImageActions, StreamActions } from "@/store/actions";
+import { ImageActions, StreamActions, Auth } from "@/store/actions";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -198,6 +198,11 @@ export default function DashboardPage() {
     setStreamDescription("");
   };
 
+  const updateUser = (e: any) => {
+    e.preventDefault();
+    dispatch(Auth.updateUser({ ...userProfile, banner, profilePic }));
+  };
+
   useEffect(() => {
     if (image) {
       if (imageType === "banner") {
@@ -222,7 +227,7 @@ export default function DashboardPage() {
     if (user) {
       setBanner(user?.banner);
       setProfilePic(user?.profilePic);
-      setUserProfile({...user})
+      setUserProfile({ ...user });
     }
   }, [user]);
 
@@ -904,7 +909,7 @@ export default function DashboardPage() {
                       />
                       <input
                         type="file"
-                        onChange={(e) => handleUpload(e, "banner", "banners")}
+                        onChange={(e) => handleUpload(e, "banners", "banner")}
                         className="absolute cursor-pointer"
                         style={{ width: "100%", height: "100%", opacity: 0 }}
                       />
@@ -929,9 +934,16 @@ export default function DashboardPage() {
                       </Avatar>
                       <input
                         type="file"
-                        onChange={(e) => handleUpload(e, "profilePics", "profile")}
+                        onChange={(e) =>
+                          handleUpload(e, "profilePics", "profile")
+                        }
                         className="absolute cursor-pointer"
-                        style={{ width: "100%", height: "100%", opacity: 0, top: 0 }}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          opacity: 0,
+                          top: 0,
+                        }}
                       />
                     </div>
                   )}
@@ -940,13 +952,17 @@ export default function DashboardPage() {
                       Upload a new profile picture
                     </p>
                     <div className="flex gap-2">
-                      <Button
+                      {/* <Button
                         variant="outline"
                         className="border-fhsb-green/30 text-fhsb-cream hover:bg-fhsb-green hover:text-black"
                       >
                         Upload
-                      </Button>
+                      </Button> */}
                       <Button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setProfilePic("")
+                        }}
                         variant="outline"
                         className="border-red-500/30 text-red-500 hover:bg-red-500/10"
                       >
@@ -960,7 +976,12 @@ export default function DashboardPage() {
                   <Label htmlFor="display-name">Display Name</Label>
                   <Input
                     id="display-name"
-                    onChange={(e) => setUserProfile({ ...userProfile, username: e.target.value })}
+                    onChange={(e) =>
+                      setUserProfile({
+                        ...userProfile,
+                        username: e.target.value,
+                      })
+                    }
                     defaultValue={userProfile.username}
                     className="bg-muted/10 border-fhsb-green/30 focus-visible:ring-fhsb-green/50"
                   />
@@ -971,17 +992,39 @@ export default function DashboardPage() {
                   <Input
                     id="email"
                     type="email"
-                    onChange={(e) => setUserProfile({ ...userProfile, email: e.target.value })}
+                    onChange={(e) =>
+                      setUserProfile({ ...userProfile, email: e.target.value })
+                    }
                     defaultValue={userProfile.email}
                     className="bg-muted/10 border-fhsb-green/30 focus-visible:ring-fhsb-green/50"
                   />
                 </div>
 
+                {user?.documentVerified ?
+                  <div className="space-y-2">
+                    <Label htmlFor="display-name">Adult Content</Label>
+                    <br />
+                    <Switch
+                      id="display-name"
+                      onCheckedChange={(e) =>
+                        setUserProfile({
+                          ...userProfile,
+                          adultContent: e,
+                        })
+                      }
+                      checked={userProfile.adultContent}
+                      className="bg-muted/10 border-fhsb-green/30 focus-visible:ring-fhsb-green/50"
+                    />
+                  </div> 
+                : null}
+
                 <div className="space-y-2">
                   <Label htmlFor="bio">Bio</Label>
                   <Textarea
                     id="bio"
-                    onChange={(e) => setUserProfile({ ...userProfile, bio: e.target.value })}
+                    onChange={(e) =>
+                      setUserProfile({ ...userProfile, bio: e.target.value })
+                    }
                     defaultValue={userProfile.bio}
                     placeholder="Tell viewers about yourself"
                     className="bg-muted/10 border-fhsb-green/30 focus-visible:ring-fhsb-green/50"
@@ -989,6 +1032,7 @@ export default function DashboardPage() {
                 </div>
 
                 <Button
+                  onClick={updateUser}
                   type="submit"
                   className="bg-fhsb-green text-black hover:bg-fhsb-green/90"
                 >

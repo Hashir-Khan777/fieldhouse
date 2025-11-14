@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Trending() {
   const trendingStreams = [
@@ -32,7 +32,7 @@ export default function Trending() {
       thumbnail: "/placeholder.svg?height=200&width=300",
       tags: ["Speed Art", "Digital", "Tutorial"],
     },
-  ]
+  ];
 
   const trendingCategories = [
     { name: "Gaming", viewers: 125000, growth: "+15%" },
@@ -40,7 +40,7 @@ export default function Trending() {
     { name: "Art", viewers: 45000, growth: "+22%" },
     { name: "Talk Shows", viewers: 32000, growth: "+5%" },
     { name: "Sports", viewers: 28000, growth: "+12%" },
-  ]
+  ];
 
   const trendingCreators = [
     {
@@ -70,20 +70,27 @@ export default function Trending() {
       avatar: "/placeholder-user.jpg",
       growth: "+3.2K",
     },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-black text-cream">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4 text-neon-green">Trending Now</h1>
-            <p className="text-xl text-gray-300">Discover what's hot on Fieldhouse Stadium</p>
+            <h1 className="text-4xl font-bold mb-4 text-neon-green">
+              Trending Now
+            </h1>
+            <p className="text-xl text-gray-300">
+              Discover what's hot on Green Dragon Den
+            </p>
           </div>
 
           <Tabs defaultValue="streams" className="w-full">
             <TabsList className="grid w-full grid-cols-3 bg-gray-900 mb-8">
-              <TabsTrigger value="streams" className="data-[state=active]:bg-neon-green data-[state=active]:text-black">
+              <TabsTrigger
+                value="streams"
+                className="data-[state=active]:bg-neon-green data-[state=active]:text-black"
+              >
                 Trending Streams
               </TabsTrigger>
               <TabsTrigger
@@ -120,10 +127,17 @@ export default function Trending() {
                           </div>
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-2xl font-semibold text-cream mb-2">{stream.title}</h3>
-                          <p className="text-gray-400 mb-3">by {stream.streamer}</p>
+                          <h3 className="text-2xl font-semibold text-cream mb-2">
+                            {stream.title}
+                          </h3>
+                          <p className="text-gray-400 mb-3">
+                            by {stream.streamer}
+                          </p>
                           <div className="flex items-center gap-4 mb-4">
-                            <Badge variant="outline" className="bg-neon-green/10 text-neon-green border-neon-green">
+                            <Badge
+                              variant="outline"
+                              className="bg-neon-green/10 text-neon-green border-neon-green"
+                            >
                               {stream.category}
                             </Badge>
                             <span className="text-neon-green font-semibold">
@@ -132,12 +146,18 @@ export default function Trending() {
                           </div>
                           <div className="flex flex-wrap gap-2 mb-4">
                             {stream.tags.map((tag, tagIndex) => (
-                              <Badge key={tagIndex} variant="secondary" className="bg-gray-800 text-gray-300">
+                              <Badge
+                                key={tagIndex}
+                                variant="secondary"
+                                className="bg-gray-800 text-gray-300"
+                              >
                                 {tag}
                               </Badge>
                             ))}
                           </div>
-                          <Button className="bg-neon-green text-black hover:bg-neon-green/90">Watch Now</Button>
+                          <Button className="bg-neon-green text-black hover:bg-neon-green/90">
+                            Watch Now
+                          </Button>
                         </div>
                       </div>
                     </CardContent>
@@ -155,13 +175,18 @@ export default function Trending() {
                         <CardTitle className="text-neon-green">
                           #{index + 1} {category.name}
                         </CardTitle>
-                        <Badge variant="outline" className="bg-green-900/20 text-green-400 border-green-400">
+                        <Badge
+                          variant="outline"
+                          className="bg-green-900/20 text-green-400 border-green-400"
+                        >
                           {category.growth}
                         </Badge>
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold text-cream mb-2">{category.viewers.toLocaleString()}</div>
+                      <div className="text-2xl font-bold text-cream mb-2">
+                        {category.viewers.toLocaleString()}
+                      </div>
                       <p className="text-gray-400 mb-4">Total viewers</p>
                       <Button
                         variant="outline"
@@ -178,7 +203,10 @@ export default function Trending() {
             <TabsContent value="creators" className="space-y-6">
               <div className="grid gap-6">
                 {trendingCreators.map((creator, index) => (
-                  <Card key={creator.id} className="bg-gray-900 border-gray-800">
+                  <Card
+                    key={creator.id}
+                    className="bg-gray-900 border-gray-800"
+                  >
                     <CardContent className="p-6">
                       <div className="flex items-center gap-6">
                         <div className="relative">
@@ -192,16 +220,28 @@ export default function Trending() {
                           </div>
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-xl font-semibold text-cream">{creator.displayName}</h3>
-                          <p className="text-gray-400 mb-2">@{creator.username}</p>
+                          <h3 className="text-xl font-semibold text-cream">
+                            {creator.displayName}
+                          </h3>
+                          <p className="text-gray-400 mb-2">
+                            @{creator.username}
+                          </p>
                           <div className="flex items-center gap-4 mb-3">
-                            <Badge variant="outline" className="bg-neon-green/10 text-neon-green border-neon-green">
+                            <Badge
+                              variant="outline"
+                              className="bg-neon-green/10 text-neon-green border-neon-green"
+                            >
                               {creator.category}
                             </Badge>
-                            <span className="text-gray-400">{creator.followers.toLocaleString()} followers</span>
+                            <span className="text-gray-400">
+                              {creator.followers.toLocaleString()} followers
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="bg-green-900/20 text-green-400 border-green-400">
+                            <Badge
+                              variant="outline"
+                              className="bg-green-900/20 text-green-400 border-green-400"
+                            >
                               {creator.growth} this week
                             </Badge>
                           </div>
@@ -230,20 +270,28 @@ export default function Trending() {
 
           <Card className="bg-gray-900 border-gray-800 mt-8">
             <CardHeader>
-              <CardTitle className="text-neon-green">Trending Highlights</CardTitle>
+              <CardTitle className="text-neon-green">
+                Trending Highlights
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-neon-green mb-2">2.5M+</div>
+                  <div className="text-3xl font-bold text-neon-green mb-2">
+                    2.5M+
+                  </div>
                   <p className="text-gray-400">Total viewers online</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-neon-green mb-2">15K+</div>
+                  <div className="text-3xl font-bold text-neon-green mb-2">
+                    15K+
+                  </div>
                   <p className="text-gray-400">Live streams</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-neon-green mb-2">+25%</div>
+                  <div className="text-3xl font-bold text-neon-green mb-2">
+                    +25%
+                  </div>
                   <p className="text-gray-400">Growth this week</p>
                 </div>
               </div>
@@ -252,5 +300,5 @@ export default function Trending() {
         </div>
       </div>
     </div>
-  )
+  );
 }

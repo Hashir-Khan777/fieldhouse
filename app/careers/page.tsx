@@ -135,7 +135,7 @@ export default function Careers() {
             <CardContent>
               <p className="text-gray-300 mb-4">
                 We're always looking for talented individuals to join our team. Send us your resume and tell us how
-                you'd like to contribute to Fieldhouse Stadium.
+                you'd like to contribute to Green Dragon Den.
               </p>
               <Button className="bg-neon-green text-black hover:bg-neon-green/90">Send General Application</Button>
             </CardContent>

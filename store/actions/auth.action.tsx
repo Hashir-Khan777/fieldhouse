@@ -111,13 +111,14 @@ const verifyUser: any = createAsyncThunk(
 
 const updateUser: any = createAsyncThunk(
   "auth/updateUser",
-  async (obj: any, { rejectWithValue, dispatch }) => {
+  async (obj: any, { rejectWithValue }) => {
     try {
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/update`,
         obj,
         { headers: { Authorization: `Bearer ${cookies.get("_user")}` } }
       );
+      toast.success("User updated successfully");
       return data;
     } catch (err: any) {
       toast.error(

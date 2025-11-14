@@ -6,7 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 export default function Support() {
   const faqs = [
     {
-      question: "How do I start streaming on Fieldhouse Stadium?",
+      question: "How do I start streaming on Green Dragon Den?",
       answer:
         "To start streaming, create an account, verify your email, and go to your dashboard. Click 'Go Live' and follow the setup instructions to configure your streaming software.",
     },

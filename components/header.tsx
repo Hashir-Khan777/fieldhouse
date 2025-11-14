@@ -35,19 +35,15 @@ export function Header() {
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/logo.png"
-              alt="Fieldhouse Stadium Beta"
-              width={40}
+              alt="Green Dragon Den"
+              width={120}
               height={40}
-              className="rounded-sm"
+              className="h-10 w-auto"
             />
-            <span className="text-xl font-bold text-primary logo-text hidden md:inline-block">
-              Fieldhouse Stadium{" "}
-              <span className="text-secondary text-sm">BETA</span>
-            </span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-6 ml-6">
-            <Link
+            {/* <Link
               href="/admin"
               className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/admin"
                   ? "text-primary"
@@ -55,22 +51,24 @@ export function Header() {
                 }`}
             >
               Admin
-            </Link>
+            </Link> */}
             <Link
               href="/browse"
-              className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/browse"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                pathname === "/browse"
                   ? "text-primary"
                   : "text-muted-foreground"
-                }`}
+              }`}
             >
               Browse
             </Link>
             <Link
               href="/categories"
-              className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/categories"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                pathname === "/categories"
                   ? "text-primary"
                   : "text-muted-foreground"
-                }`}
+              }`}
             >
               Categories
             </Link>
@@ -84,10 +82,11 @@ export function Header() {
             {user?.verified && (
               <Link
                 href="/following"
-                className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/following"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  pathname === "/following"
                     ? "text-primary"
                     : "text-muted-foreground"
-                  }`}
+                }`}
               >
                 Following
               </Link>
@@ -166,30 +165,33 @@ export function Header() {
             <nav className="flex flex-col space-y-3">
               <Link
                 href="/admin"
-                className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/admin"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  pathname === "/admin"
                     ? "text-primary"
                     : "text-muted-foreground"
-                  }`}
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Admin
               </Link>
               <Link
                 href="/browse"
-                className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/browse"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  pathname === "/browse"
                     ? "text-primary"
                     : "text-muted-foreground"
-                  }`}
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Browse
               </Link>
               <Link
                 href="/categories"
-                className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/categories"
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  pathname === "/categories"
                     ? "text-primary"
                     : "text-muted-foreground"
-                  }`}
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Categories
@@ -204,10 +206,11 @@ export function Header() {
               {user?.verified && (
                 <Link
                   href="/following"
-                  className={`text-sm font-medium transition-colors hover:text-primary ${pathname === "/following"
+                  className={`text-sm font-medium transition-colors hover:text-primary ${
+                    pathname === "/following"
                       ? "text-primary"
                       : "text-muted-foreground"
-                    }`}
+                  }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Following
