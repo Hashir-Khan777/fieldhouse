@@ -211,7 +211,8 @@ export default function StreamPage() {
 
   useEffect(() => {
     if (connected) {
-      socket.on("newProducer", ({ producerId }: any) => {
+      socket.on("newProducer", ({ producerId, streamId }: any) => {
+        if (streamId !== streamid) return;
         console.log("New producer with producerId:", producerId);
         viewerStream(producerId);
       });
@@ -282,7 +283,7 @@ export default function StreamPage() {
                 )}
               </div>
             </div>
-            <div className="flex gap-3 justify-between items-center mt-4">
+            <div className="flex gap-4 items-center mt-4">
               {streams
                 .filter((_: any, index: any) => index !== currentStream)
                 .map((stream: any, index: any) => (

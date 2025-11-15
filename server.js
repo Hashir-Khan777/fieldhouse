@@ -168,21 +168,23 @@ io.on("connection", async (socket) => {
   socket.on(
     "produce",
     async ({ transportId, kind, rtpParameters }, streamId, callback) => {
-      const transport = streams
-        .find((x) => x.id === streamId)
-        ?.transports?.find((t) => t.id === transportId);
+      const stream = streams.find((x) => x.id === streamId);
+      const transport = stream?.transports?.find((t) => t.id === transportId);
       const producer = await transport.produce({ kind, rtpParameters });
-      streams.find((x) => x.id === streamId).producers.push(producer);
+      stream.producers.push(producer);
       console.log("🎥 Producer created:", producer.id);
 
-      socket
-        .to(streamId)
-        .emit("newProducer", { producerId: producer.id, streamId });
+      io.emit("newProducer", { producerId: producer.id, streamId });
 
-      // producer.on("transportclose", () => {
-      //   producer.close();
-      //   producer = null;
-      // });
+      producer.on("transportclose", () => {
+        producer.close();
+        stream.producers = stream.producers.filter((p) => p.id !== producer.id);
+      });
+
+      producer.on("close", () => {
+        console.log("❌ Producer closed:", producer.id);
+        stream.producers = stream.producers.filter((p) => p.id !== producer.id);
+      });
 
       callback({ id: producer.id });
     }
