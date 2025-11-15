@@ -20,13 +20,13 @@ export default function AdminLayout({
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/logo.png"
-            alt="Fieldhouse Stadium Beta"
+            alt="Green Dragon Den"
             width={40}
             height={40}
             className="rounded-sm"
           />
           <span className="text-xl font-bold text-primary logo-text hidden md:inline-block">
-            Fieldhouse Stadium{" "}
+            Green Dragon Den{" "}
             <span className="text-secondary text-sm">BETA</span>
           </span>
         </Link>
@@ -35,9 +35,7 @@ export default function AdminLayout({
           <Link
             href="/admin"
             className={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary ${
-              pathname === "/admin"
-                ? "text-primary"
-                : "text-muted-foreground"
+              pathname === "/admin" ? "text-primary" : "text-muted-foreground"
             }`}
           >
             <LayoutDashboard size={18} />

@@ -109,6 +109,28 @@ const verifyUser: any = createAsyncThunk(
   }
 );
 
+const updateUser: any = createAsyncThunk(
+  "auth/updateUser",
+  async (obj: any, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/update`,
+        obj,
+        { headers: { Authorization: `Bearer ${cookies.get("_user")}` } }
+      );
+      toast.success("User updated successfully");
+      return data;
+    } catch (err: any) {
+      toast.error(
+        err.response.data.message ? err.response.data.message : err.message
+      );
+      return rejectWithValue(
+        err.response.data.message ? err.response.data.message : err.message
+      );
+    }
+  }
+);
+
 const logout: any = createAsyncThunk(
   "auth/logout",
   (obj: any, { rejectWithValue }) => {
@@ -119,4 +141,4 @@ const logout: any = createAsyncThunk(
   }
 );
 
-export { register, verifyEmail, verifyUser, logout, login };
+export { register, verifyEmail, verifyUser, logout, login, updateUser };

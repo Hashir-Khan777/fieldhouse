@@ -62,7 +62,7 @@ export default function RegisterPage() {
         <div className="space-y-2 text-center">
           <Image
             src="/logo.png"
-            alt="Fieldhouse Stadium Beta"
+            alt="Green Dragon Den"
             width={80}
             height={80}
             className="mx-auto rounded"

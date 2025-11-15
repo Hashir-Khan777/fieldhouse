@@ -1,11 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function CommunityGuidelines() {
   return (
     <div className="min-h-screen bg-black text-cream">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold mb-8 text-neon-green">Community Guidelines</h1>
+          <h1 className="text-4xl font-bold mb-8 text-neon-green">
+            Community Guidelines
+          </h1>
 
           <Card className="bg-gray-900 border-gray-800 mb-6">
             <CardHeader>
@@ -13,18 +15,23 @@ export default function CommunityGuidelines() {
             </CardHeader>
             <CardContent className="text-cream space-y-4">
               <p>
-                Fieldhouse Stadium is committed to creating a safe, inclusive, and welcoming environment for all users.
-                These guidelines help ensure our community remains a positive space for everyone.
+                Green Dragon Den is committed to creating a safe, inclusive, and
+                welcoming environment for all users. These guidelines help
+                ensure our community remains a positive space for everyone.
               </p>
             </CardContent>
           </Card>
 
           <Card className="bg-gray-900 border-gray-800 mb-6">
             <CardHeader>
-              <CardTitle className="text-neon-green">Prohibited Content</CardTitle>
+              <CardTitle className="text-neon-green">
+                Prohibited Content
+              </CardTitle>
             </CardHeader>
             <CardContent className="text-cream space-y-4">
-              <p>The following types of content are not allowed on our platform:</p>
+              <p>
+                The following types of content are not allowed on our platform:
+              </p>
               <ul className="list-disc list-inside ml-4 space-y-2">
                 <li>Harassment, bullying, or threats</li>
                 <li>Hate speech or discriminatory content</li>
@@ -40,7 +47,9 @@ export default function CommunityGuidelines() {
 
           <Card className="bg-gray-900 border-gray-800 mb-6">
             <CardHeader>
-              <CardTitle className="text-neon-green">Respectful Behavior</CardTitle>
+              <CardTitle className="text-neon-green">
+                Respectful Behavior
+              </CardTitle>
             </CardHeader>
             <CardContent className="text-cream space-y-4">
               <p>We expect all community members to:</p>
@@ -56,7 +65,9 @@ export default function CommunityGuidelines() {
 
           <Card className="bg-gray-900 border-gray-800 mb-6">
             <CardHeader>
-              <CardTitle className="text-neon-green">Content Creation Guidelines</CardTitle>
+              <CardTitle className="text-neon-green">
+                Content Creation Guidelines
+              </CardTitle>
             </CardHeader>
             <CardContent className="text-cream space-y-4">
               <p>For streamers and content creators:</p>
@@ -83,7 +94,8 @@ export default function CommunityGuidelines() {
                 <li>Reporting to law enforcement (when applicable)</li>
               </ul>
               <p>
-                We review each case individually and consider factors such as severity, intent, and previous violations.
+                We review each case individually and consider factors such as
+                severity, intent, and previous violations.
               </p>
             </CardContent>
           </Card>
@@ -94,8 +106,9 @@ export default function CommunityGuidelines() {
             </CardHeader>
             <CardContent className="text-cream space-y-4">
               <p>
-                If you encounter content or behavior that violates these guidelines, please report it using our
-                reporting tools or contact us at moderation@fieldhousestadium.com
+                If you encounter content or behavior that violates these
+                guidelines, please report it using our reporting tools or
+                contact us at moderation@fieldhousestadium.com
               </p>
             </CardContent>
           </Card>
@@ -106,14 +119,17 @@ export default function CommunityGuidelines() {
             </CardHeader>
             <CardContent className="text-cream space-y-4">
               <p>
-                If you believe your content or account was actioned in error, you can appeal the decision by contacting
+                If you believe your content or account was actioned in error,
+                you can appeal the decision by contacting
                 appeals@fieldhousestadium.com
               </p>
-              <p className="text-sm text-gray-400">Last updated: {new Date().toLocaleDateString()}</p>
+              <p className="text-sm text-gray-400">
+                Last updated: {new Date().toLocaleDateString()}
+              </p>
             </CardContent>
           </Card>
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -12,8 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
-import { Auth, ImageActions } from "@/store/actions";
-import { toast } from "react-toastify";
+import { DocumentActions, ImageActions } from "@/store/actions";
 
 export default function DocumentVerificationPage() {
   const router = useRouter();
@@ -21,6 +20,7 @@ export default function DocumentVerificationPage() {
 
   const { user, loading } = useSelector((x: any) => x.AuthReducer);
   const { image } = useSelector((x: any) => x.ImageReducer);
+  const { docs } = useSelector((x: any) => x.DocumentReducer);
 
   const [field, SetField] = useState("");
   const [form, setForm] = useState({
@@ -31,13 +31,7 @@ export default function DocumentVerificationPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Your documents has been submitted for the verification");
-    router.replace("/");
-    // if (!code) {
-    //   toast.error("Please fill in all fields");
-    //   return;
-    // }
-    // dispatch(Auth.verifyEmail({ code }));
+    dispatch(DocumentActions.uploadDocs(form));
   };
 
   const handleUpload = async (e: any) => {
@@ -51,15 +45,15 @@ export default function DocumentVerificationPage() {
     };
   };
 
-  //   useEffect(() => {
-  //     if (user?.verified) {
-  //       router.replace("/");
-  //     }
-  //   }, [user]);
+  useEffect(() => {
+    if (docs) {
+      router.replace("/");
+    }
+  }, [docs]);
 
   useEffect(() => {
     if (image) {
-        setForm({ ...form, [field]: image?.secure_url });
+      setForm({ ...form, [field]: image?.secure_url });
     }
   }, [image]);
 
@@ -69,7 +63,7 @@ export default function DocumentVerificationPage() {
         <div className="space-y-2 text-center">
           <Image
             src="/logo.png"
-            alt="Fieldhouse Stadium Beta"
+            alt="Green Dragon Den"
             width={80}
             height={80}
             className="mx-auto rounded"

@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { useParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Bell, BellOff } from "lucide-react"
-import { useAuth } from "@/components/auth-provider"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Bell, BellOff } from "lucide-react";
+import { useAuth } from "@/components/auth-provider";
 
 export default function ChannelPage() {
-  const { username } = useParams()
-  const { user } = useAuth()
-  const [isFollowing, setIsFollowing] = useState(false)
-  const [isSubscribed, setIsSubscribed] = useState(false)
-  const [isNotificationsOn, setIsNotificationsOn] = useState(false)
+  const { username } = useParams();
+  const { user } = useAuth();
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isNotificationsOn, setIsNotificationsOn] = useState(false);
 
   // Mock channel data
   const channel = {
@@ -26,7 +26,7 @@ export default function ChannelPage() {
     banner: "/placeholder.svg?height=300&width=1200",
     followers: 125000,
     description:
-      "Official channel for Fieldhouse Stadium Beta. We stream live sports events, tournaments, and exclusive content for sports fans around the world.",
+      "Official channel for Green Dragon Den. We stream live sports events, tournaments, and exclusive content for sports fans around the world.",
     isLive: true,
     currentStream: {
       id: "stream-1",
@@ -36,7 +36,7 @@ export default function ChannelPage() {
       viewerCount: 15420,
       startedAt: new Date(Date.now() - 1000 * 60 * 45), // Started 45 minutes ago
     },
-  }
+  };
 
   // Mock videos data
   const videos = [
@@ -88,7 +88,7 @@ export default function ChannelPage() {
       views: 7200,
       date: "1 month ago",
     },
-  ]
+  ];
 
   // Mock schedule data
   const schedule = [
@@ -96,33 +96,36 @@ export default function ChannelPage() {
       id: "schedule-1",
       title: "Semifinals Recap",
       date: "Tomorrow at 7:00 PM",
-      description: "Breaking down the semifinals and looking ahead to the championship.",
+      description:
+        "Breaking down the semifinals and looking ahead to the championship.",
     },
     {
       id: "schedule-2",
       title: "Coach Interview",
       date: "Friday at 6:30 PM",
-      description: "Exclusive interview with the head coach discussing strategy for the finals.",
+      description:
+        "Exclusive interview with the head coach discussing strategy for the finals.",
     },
     {
       id: "schedule-3",
       title: "Season Preview",
       date: "Next Monday at 8:00 PM",
-      description: "Looking ahead to the upcoming season and previewing the top teams.",
+      description:
+        "Looking ahead to the upcoming season and previewing the top teams.",
     },
-  ]
+  ];
 
   const toggleFollow = () => {
-    setIsFollowing((prev) => !prev)
-  }
+    setIsFollowing((prev) => !prev);
+  };
 
   const toggleSubscribe = () => {
-    setIsSubscribed((prev) => !prev)
-  }
+    setIsSubscribed((prev) => !prev);
+  };
 
   const toggleNotifications = () => {
-    setIsNotificationsOn((prev) => !prev)
-  }
+    setIsNotificationsOn((prev) => !prev);
+  };
 
   return (
     <div>
@@ -140,7 +143,10 @@ export default function ChannelPage() {
         {/* Channel Info */}
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <Avatar className="h-24 w-24 border-4 border-black -mt-12 z-10 bg-black">
-            <AvatarImage src={channel.avatar || "/placeholder.svg"} alt={channel.displayName} />
+            <AvatarImage
+              src={channel.avatar || "/placeholder.svg"}
+              alt={channel.displayName}
+            />
             <AvatarFallback className="bg-muted text-fhsb-cream text-2xl">
               {channel.displayName.substring(0, 2).toUpperCase()}
             </AvatarFallback>
@@ -148,10 +154,16 @@ export default function ChannelPage() {
 
           <div className="flex-1 space-y-2">
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-fhsb-cream">{channel.displayName}</h1>
-              {channel.isLive && <Badge className="bg-red-600 hover:bg-red-700">LIVE</Badge>}
+              <h1 className="text-2xl font-bold text-fhsb-cream">
+                {channel.displayName}
+              </h1>
+              {channel.isLive && (
+                <Badge className="bg-red-600 hover:bg-red-700">LIVE</Badge>
+              )}
             </div>
-            <p className="text-muted-foreground">{channel.followers.toLocaleString()} followers</p>
+            <p className="text-muted-foreground">
+              {channel.followers.toLocaleString()} followers
+            </p>
             <p className="text-fhsb-cream">{channel.description}</p>
           </div>
 
@@ -185,9 +197,15 @@ export default function ChannelPage() {
                 className="border-fhsb-green/30 text-fhsb-cream hover:bg-transparent"
                 onClick={toggleNotifications}
               >
-                {isNotificationsOn ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+                {isNotificationsOn ? (
+                  <Bell className="h-4 w-4" />
+                ) : (
+                  <BellOff className="h-4 w-4" />
+                )}
                 <span className="sr-only">
-                  {isNotificationsOn ? "Turn off notifications" : "Turn on notifications"}
+                  {isNotificationsOn
+                    ? "Turn off notifications"
+                    : "Turn on notifications"}
                 </span>
               </Button>
             )}
@@ -210,7 +228,8 @@ export default function ChannelPage() {
                   <div className="absolute top-2 left-2 flex items-center gap-1.5">
                     <Badge className="bg-red-600 hover:bg-red-700">LIVE</Badge>
                     <Badge className="bg-black/70 backdrop-blur-sm hover:bg-black/80">
-                      {channel.currentStream.viewerCount.toLocaleString()} viewers
+                      {channel.currentStream.viewerCount.toLocaleString()}{" "}
+                      viewers
                     </Badge>
                   </div>
                 </div>
@@ -218,7 +237,9 @@ export default function ChannelPage() {
                   <h3 className="text-lg font-medium text-fhsb-cream group-hover:text-fhsb-green">
                     {channel.currentStream.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground mt-1">{channel.currentStream.category}</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {channel.currentStream.category}
+                  </p>
                 </div>
               </div>
             </Link>
@@ -228,13 +249,22 @@ export default function ChannelPage() {
         {/* Channel Content Tabs */}
         <Tabs defaultValue="videos">
           <TabsList className="bg-muted/10 border border-fhsb-green/20">
-            <TabsTrigger value="videos" className="data-[state=active]:bg-fhsb-green data-[state=active]:text-black">
+            <TabsTrigger
+              value="videos"
+              className="data-[state=active]:bg-fhsb-green data-[state=active]:text-black"
+            >
               Videos
             </TabsTrigger>
-            <TabsTrigger value="schedule" className="data-[state=active]:bg-fhsb-green data-[state=active]:text-black">
+            <TabsTrigger
+              value="schedule"
+              className="data-[state=active]:bg-fhsb-green data-[state=active]:text-black"
+            >
               Schedule
             </TabsTrigger>
-            <TabsTrigger value="about" className="data-[state=active]:bg-fhsb-green data-[state=active]:text-black">
+            <TabsTrigger
+              value="about"
+              className="data-[state=active]:bg-fhsb-green data-[state=active]:text-black"
+            >
               About
             </TabsTrigger>
           </TabsList>
@@ -260,9 +290,13 @@ export default function ChannelPage() {
                         {video.title}
                       </h3>
                       <div className="flex items-center gap-2 mt-1">
-                        <p className="truncate text-xs text-muted-foreground">{video.views.toLocaleString()} views</p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {video.views.toLocaleString()} views
+                        </p>
                         <span className="text-xs text-muted-foreground">•</span>
-                        <p className="truncate text-xs text-muted-foreground">{video.date}</p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {video.date}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -274,12 +308,21 @@ export default function ChannelPage() {
           <TabsContent value="schedule" className="mt-6">
             <div className="space-y-4">
               {schedule.map((event) => (
-                <div key={event.id} className="p-4 rounded-lg border border-fhsb-green/20 bg-card/50">
+                <div
+                  key={event.id}
+                  className="p-4 rounded-lg border border-fhsb-green/20 bg-card/50"
+                >
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-medium text-fhsb-cream">{event.title}</h3>
-                      <p className="text-sm text-muted-foreground">{event.date}</p>
-                      <p className="text-sm text-fhsb-cream mt-2">{event.description}</p>
+                      <h3 className="font-medium text-fhsb-cream">
+                        {event.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {event.date}
+                      </p>
+                      <p className="text-sm text-fhsb-cream mt-2">
+                        {event.description}
+                      </p>
                     </div>
                     <Button
                       variant="outline"
@@ -296,16 +339,22 @@ export default function ChannelPage() {
           <TabsContent value="about" className="mt-6">
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-medium text-fhsb-cream mb-2">About {channel.displayName}</h3>
+                <h3 className="text-lg font-medium text-fhsb-cream mb-2">
+                  About {channel.displayName}
+                </h3>
                 <p className="text-fhsb-cream">{channel.description}</p>
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-fhsb-cream mb-2">Channel Stats</h3>
+                <h3 className="text-lg font-medium text-fhsb-cream mb-2">
+                  Channel Stats
+                </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="p-4 rounded-lg border border-fhsb-green/20 bg-card/50">
                     <p className="text-sm text-muted-foreground">Followers</p>
-                    <p className="text-xl font-bold text-fhsb-cream">{channel.followers.toLocaleString()}</p>
+                    <p className="text-xl font-bold text-fhsb-cream">
+                      {channel.followers.toLocaleString()}
+                    </p>
                   </div>
                   <div className="p-4 rounded-lg border border-fhsb-green/20 bg-card/50">
                     <p className="text-sm text-muted-foreground">Total Views</p>
@@ -313,13 +362,17 @@ export default function ChannelPage() {
                   </div>
                   <div className="p-4 rounded-lg border border-fhsb-green/20 bg-card/50">
                     <p className="text-sm text-muted-foreground">Joined</p>
-                    <p className="text-xl font-bold text-fhsb-cream">Jan 2023</p>
+                    <p className="text-xl font-bold text-fhsb-cream">
+                      Jan 2023
+                    </p>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-fhsb-cream mb-2">Social Media</h3>
+                <h3 className="text-lg font-medium text-fhsb-cream mb-2">
+                  Social Media
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   <Button
                     variant="outline"
@@ -352,5 +405,5 @@ export default function ChannelPage() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }

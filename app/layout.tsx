@@ -11,7 +11,7 @@ import LayoutWrapper from "@/components/layout-wrapper"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Fieldhouse Stadium Beta",
+  title: "Green Dragon Den",
   description: "Live streaming platform for sports and events",
   generator: "v0.dev",
 }

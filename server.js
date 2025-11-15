@@ -83,6 +83,10 @@ const connectDB = async () => {
           password: { type: String, required: true },
           verified: { type: Boolean, default: false },
           documentsverified: { type: Boolean, default: false },
+          adultContent: { type: Boolean, default: false },
+          profilePic: { type: String },
+          banner: { type: String },
+          bio: { type: String },
         },
         { strict: false, timestamps: true }
       ),
