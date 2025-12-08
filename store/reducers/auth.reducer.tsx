@@ -31,6 +31,9 @@ export default createSlice({
       state.loading = false;
       state.user = payload;
     });
+    builder.addCase(Auth.logout.fulfilled, (state, { payload }) => {
+      state.user = {};
+    });
     builder.addMatcher(
       isAnyOf(Auth.register.pending, Auth.verifyEmail.pending, Auth.login.pending),
       (state) => {

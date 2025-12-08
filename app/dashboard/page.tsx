@@ -961,7 +961,7 @@ export default function DashboardPage() {
                       <Button
                         onClick={(e) => {
                           e.preventDefault();
-                          setProfilePic("")
+                          setProfilePic("");
                         }}
                         variant="outline"
                         className="border-red-500/30 text-red-500 hover:bg-red-500/10"
@@ -1000,7 +1000,7 @@ export default function DashboardPage() {
                   />
                 </div>
 
-                {user?.documentVerified ?
+                {user?.documentVerified ? (
                   <div className="space-y-2">
                     <Label htmlFor="display-name">Adult Content</Label>
                     <br />
@@ -1015,8 +1015,8 @@ export default function DashboardPage() {
                       checked={userProfile.adultContent}
                       className="bg-muted/10 border-fhsb-green/30 focus-visible:ring-fhsb-green/50"
                     />
-                  </div> 
-                : null}
+                  </div>
+                ) : null}
 
                 <div className="space-y-2">
                   <Label htmlFor="bio">Bio</Label>
@@ -1240,6 +1240,27 @@ export default function DashboardPage() {
                   </div>
                 </div> */}
               </form>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-fhsb-green/20">
+            <CardHeader>
+              <CardTitle className="text-fhsb-cream">Logout</CardTitle>
+              <CardDescription>
+                Logout from your account on this device
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={() => {
+                  dispatch(Auth.logout());
+                  router.replace("/login");
+                }}
+                type="submit"
+                className="bg-fhsb-green text-black hover:bg-fhsb-green/90"
+              >
+                Logout
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
